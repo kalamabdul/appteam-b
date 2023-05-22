@@ -1,28 +1,20 @@
 ---
-- name: Update web servers
-  hosts: webservers
-  remote_user: root
+- name: Create temporary directory
+  tempfile:
+    state: directory
+    suffix: app
+  register: r_tempfile
+  delegate_to: localhost
+  become: no
+  run_once: true
 
-  tasks:
-  - name: Ensure apache is at the latest version
-    ansible.builtin.yum:
-      name: httpd
-      state: latest
-  - name: Write the apache config file
-    ansible.builtin.template:
-      src: /srv/httpd.j2
-      dest: /etc/httpd.conf
+# - name: Generate public key
+#  openssh_keypair:
+    # needs ansible 2.8
 
-- name: Update db servers
-  hosts: databases
-  remote_user: root
-
-  tasks:
-  - name: Ensure postgresql is at the latest version
-    ansible.builtin.yum:
-      name: postgresql
-      state: latest
-  - name: Ensure that postgresql is started
-    ansible.builtin.service:
-      name: postgresql
-      state: started
+- name: Generate public key
+  command:
+    ssh-keygen -t rsa -f {{ r_tempfile.path | quote }}/id_rsa  -C "" -N ""
+  delegate_to: localhost
+  become: no
+  run_once: true
