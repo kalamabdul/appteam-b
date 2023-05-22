@@ -4,7 +4,6 @@
     state: directory
     suffix: app
   register: r_tempfile
-  delegate_to: localhost
   become: no
   run_once: true
 
